@@ -1,0 +1,27 @@
+{
+  "name": "gadd",
+  "version": "0.0.1",
+  "description": "A simple roguelike with a twang.",
+  "license": "MIT-0",
+  "author": "Axeljk",
+  "main": "assets/src/rpg.js",
+  "devDependencies": {},
+  "dependencies": {
+    "browser-sync": "^2.27.10",
+    "gulp": "^4.0.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Axeljk/gadd.git"
+  },
+  "keywords": [
+    "roguelike"
+  ],
+  "bugs": {
+    "url": "https://github.com/Axeljk/gadd/issues"
+  },
+  "homepage": "https://github.com/Axeljk/gadd#readme"
+}
