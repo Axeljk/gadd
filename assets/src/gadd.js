@@ -27,7 +27,7 @@ const config = {
 const gadd = new Phaser.Game(config);
 var map;
 var player;
-var input;
+var input_;
 var input_pos;
 var movement_lock = false;
 
@@ -41,40 +41,44 @@ function create() {
 	map = this.make.tilemap({ key: "lvl1", tileWidth: kTileSize, tileHeight: kTileSize });
 	var tileset = map.addTilesetImage('tiles');
     var layer = map.createLayer(0, tileset, 0, 0);
+	map.setCollisionBetween(4,11);
     layer.skipCull = true;
 
 	// Player sprite code dump. For now™.
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
 
 	// Controls.
-	input = this.input.keyboard.createCursorKeys();
+	input_ = this.input.keyboard.createCursorKeys();
 	input_pos = map.getTileAt(1, 1);
 	player.setPosition(input_pos.getLeft(), input_pos.getTop());
 }
 function update() {
-	if (input.up.isDown) {
-		input_pos = map.getTileAt(input_pos.x, input_pos.y-1);
-		player.setPosition(input_pos.getLeft(), input_pos.getTop());
-		this.input.keyboard.resetKeys();
-		this.input.keyboard.enabled = false;
-		this.time.delayedCall(100, () => { this.input.keyboard.enabled = true; });
-	} else if (input.right.isDown) {
-		input_pos = map.getTileAt(input_pos.x+1, input_pos.y);
-		player.setPosition(input_pos.getLeft(), input_pos.getTop());
-		this.input.keyboard.resetKeys();
-		this.input.keyboard.enabled = false;
-		this.time.delayedCall(100, () => { this.input.keyboard.enabled = true; });
-	} else if (input.down.isDown) {
-		input_pos = map.getTileAt(input_pos.x, input_pos.y+1);
-		player.setPosition(input_pos.getLeft(), input_pos.getTop());
-		this.input.keyboard.resetKeys();
-		this.input.keyboard.enabled = false;
-		this.time.delayedCall(100, () => { this.input.keyboard.enabled = true; });
-	} else if (input.left.isDown) {
-		input_pos = map.getTileAt(input_pos.x-1, input_pos.y);
-		player.setPosition(input_pos.getLeft(), input_pos.getTop());
-		this.input.keyboard.resetKeys();
-		this.input.keyboard.enabled = false;
-		this.time.delayedCall(100, () => { this.input.keyboard.enabled = true; });
+	if (input_.up.isDown) {
+		MoveTo(this, input_pos.x, input_pos.y-1);
+	} else if (input_.right.isDown) {
+		MoveTo(this, input_pos.x+1, input_pos.y);
+	} else if (input_.down.isDown) {
+		MoveTo(this, input_pos.x, input_pos.y+1);
+	} else if (input_.left.isDown) {
+		MoveTo(this, input_pos.x-1, input_pos.y);
 	}
+}
+
+function MoveTo(scene, x, y) {
+	let success = false;
+	let dest = map.getTileAt(x, y);
+	let delay = 100;
+
+	if (dest === null) {
+
+	} else if (dest.collides) {
+		delay = 25;
+	} else {
+		success = true;
+		input_pos = map.getTileAt(x, y);
+		player.setPosition(input_pos.getLeft(), input_pos.getTop());
+	}
+	scene.input.keyboard.resetKeys();
+	scene.input.keyboard.enabled = false;
+	scene.time.delayedCall(delay, () => { scene.input.keyboard.enabled = true; });
 }
