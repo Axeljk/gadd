@@ -13,6 +13,7 @@ const config = {
 	type: Phaser.AUTO,
 	width: width * kTileSize,
 	height: height * kTileSize,
+	pixelArt: true,
 	scale: {
 		autoCenter: Phaser.Scale.CENTER_BOTH,
 		zoom: zoomLevel
@@ -25,9 +26,13 @@ const config = {
 const gadd = new Phaser.Game(config);
 
 function preload () {
-	
+	this.load.image("tiles", "assets/img/tiles.png");
+	this.load.tilemapCSV("lvl1", "assets/map/level1.csv");
 }
 
 function create () {
-	var logo = this.add.text(0, 0, height + " x " + width, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
+	var map = this.make.tilemap({ key: "lvl1", tileWidth: kTileSize, tileHeight: kTileSize });
+	var tileset = map.addTilesetImage('tiles');
+    var layer = map.createLayer(0, tileset, 0, 0);
+    layer.skipCull = true;
 }
