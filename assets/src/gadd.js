@@ -43,6 +43,7 @@ function create() {
     var layer = map.createLayer(0, tileset, 0, 0);
 	map.setCollisionBetween(4,11);
     layer.skipCull = true;
+	layer.setTileIndexCallback(13, () => { console.log("Poop again."); }, this);
 
 	// Player sprite code dump. For now™.
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
@@ -77,6 +78,9 @@ function MoveTo(scene, x, y) {
 		success = true;
 		input_pos = map.getTileAt(x, y);
 		player.setPosition(input_pos.getLeft(), input_pos.getTop());
+
+		if (map.layers[0].callbacks[input_pos.index] != undefined)
+			map.layers[0].callbacks[input_pos.index].callback();
 	}
 	scene.input.keyboard.resetKeys();
 	scene.input.keyboard.enabled = false;
