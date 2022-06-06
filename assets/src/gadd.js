@@ -27,6 +27,7 @@ const config = {
 };
 const gadd = new Phaser.Game(config);
 var level;
+var level_gen;
 var map;
 var player;
 var input_;
@@ -37,10 +38,22 @@ function init(data) {
 		level = 1;
 	else
 		level = data.level + 1;
+
+	// Check if next level exists to determine whether it needs to be generated.
+	let next_level = new XMLHttpRequest();
+	next_level.open("Head", "assets/map/level" + level + ".csv", false);
+	next_level.send();
+	if (next_level.status >= 400)
+		level_gen = true;
+	else
+		level_gen = false;
 }
 function preload() {
 	this.load.image("tiles", "assets/img/tiles.png");
-	this.load.tilemapCSV("lvl" + level, "assets/map/level" + level + ".csv");
+	if (level_gen === false)
+		this.load.tilemapCSV("lvl" + level, "assets/map/level" + level + ".csv");
+	else
+		this.load.tilemapCSV("lvl" + level, "assets/map/level2.csv");
 	this.load.spritesheet('p', 'assets/img/player.png', { frameWidth: 16, frameHeight: 16 });
 }
 function create() {
@@ -51,10 +64,13 @@ function create() {
 	map.setCollisionBetween(4,11);
     layer.skipCull = true;
 	layer.setTileIndexCallback(13, () => { this.registry.destroy(); this.events.off();﻿ this.scene.restart({level: level}); }, this);
-	console.log(gadd.cache.tilemap);
 
 	// Player sprite code dump. For now™.
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
+
+	// Camera code dump. For now™.
+	this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+	this.cameras.main.startFollow(player, true);
 
 	// Controls.
 	this.input.keyboard.enabled = true;
