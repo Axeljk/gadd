@@ -19,36 +19,45 @@ const config = {
 		zoom: zoomLevel
 	},
 	scene: {
+		init: init,
 		preload: preload,
 		create: create,
 		update: update
 	}
 };
 const gadd = new Phaser.Game(config);
+var level;
 var map;
 var player;
 var input_;
 var input_pos;
-var movement_lock = false;
 
+function init(data) {
+	if (data.level === undefined)
+		level = 1;
+	else
+		level = data.level + 1;
+}
 function preload() {
 	this.load.image("tiles", "assets/img/tiles.png");
-	this.load.tilemapCSV("lvl1", "assets/map/level1.csv");
+	this.load.tilemapCSV("lvl" + level, "assets/map/level" + level + ".csv");
 	this.load.spritesheet('p', 'assets/img/player.png', { frameWidth: 16, frameHeight: 16 });
 }
 function create() {
 	// Tilemap code dump. For now™.
-	map = this.make.tilemap({ key: "lvl1", tileWidth: kTileSize, tileHeight: kTileSize });
+	map = this.make.tilemap({ key: "lvl" + level, tileWidth: kTileSize, tileHeight: kTileSize });
 	var tileset = map.addTilesetImage('tiles');
     var layer = map.createLayer(0, tileset, 0, 0);
 	map.setCollisionBetween(4,11);
     layer.skipCull = true;
-	layer.setTileIndexCallback(13, () => { console.log("Poop again."); }, this);
+	layer.setTileIndexCallback(13, () => { this.registry.destroy(); this.events.off();﻿ this.scene.restart({level: level}); }, this);
+	console.log(gadd.cache.tilemap);
 
 	// Player sprite code dump. For now™.
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
 
 	// Controls.
+	this.input.keyboard.enabled = true;
 	input_ = this.input.keyboard.createCursorKeys();
 	input_pos = map.getTileAt(1, 1);
 	player.setPosition(input_pos.getLeft(), input_pos.getTop());
