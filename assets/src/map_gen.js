@@ -31,7 +31,7 @@ export function Generate(x, y) {
 		let door_y = Phaser.Math.Between(1, y - 2);
 
 		if (data[door_y][room_width] === 0 && data[door_y][room_width - 2] === 0) {
-			data[door_y][room_width - 1] = 0;
+			data[door_y][room_width - 1] = 14;
 			doorless = false;
 		}
 	}
@@ -39,7 +39,7 @@ export function Generate(x, y) {
 	// Change top-down walls to side-view walls where appropriate.
 	for (let i = 0; i < y - 1; i++) {
 		for (let j = 0; j < x; j++) {
-			if (data[i][j] == 8 && data[i + 1][j] != 8)
+			if (data[i][j] == 8 && data[i + 1][j] == 0)
 				data[i][j] = 4;
 		}
 	}
@@ -240,7 +240,10 @@ class Node {
 
 				if (map[d + this.AbsY()][this.AbsX() - 1 ] != 8
 					&& map[d + this.AbsY()][this.AbsX() + 1 ] != 8) {
-					map[d + this.AbsY()][this.AbsX()] = 0;
+					if (Phaser.Math.Between(1, 10) != 1)
+						map[d + this.AbsY()][this.AbsX()] = 14;
+					else
+						map[d + this.AbsY()][this.AbsX()] = 18;
 					success = true;
 				}
 			} else if (this.parent.split === kHorizontal && this.IsFirst() === false) {
@@ -248,7 +251,10 @@ class Node {
 
 				if (map[this.AbsY() - 1][this.AbsX() + d] != 8
 					&& map[this.AbsY() + 1][this.AbsX() + d ] != 8) {
-					map[this.AbsY()][this.AbsX() + d] = 0;
+					if (Phaser.Math.Between(1, 10) != 1)
+						map[this.AbsY()][this.AbsX() + d] = 14;
+					else
+						map[this.AbsY()][this.AbsX() + d] = 16;
 					success = true;
 				}
 			} else if (this.IsFirst() && this.parent != null) {

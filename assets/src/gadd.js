@@ -69,6 +69,9 @@ function create() {
 	map.setCollisionBetween(4,11);
     layer.skipCull = true;
 	layer.setTileIndexCallback(13, () => { this.registry.destroy(); this.events.off();﻿ this.scene.restart({level: level}); }, this);
+	layer.setTileIndexCallback(14, (map, x, y) => { map.putTileAt(15, x, y); if (map.getTileAt(x, y - 1).index == 8) map.putTileAt(4, x, y - 1); }, this);
+	layer.setTileIndexCallback(16, (map, x, y) => { map.putTileAt(17, x, y); }, this);
+	layer.setTileIndexCallback(18, (map, x, y) => { map.putTileAt(19, x, y); }, this);
 
 	// Player sprite code dump. For now™.
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
@@ -110,7 +113,7 @@ function MoveTo(scene, x, y) {
 		player.setPosition(input_pos.getLeft(), input_pos.getTop());
 
 		if (map.layers[0].callbacks[input_pos.index] != undefined)
-			map.layers[0].callbacks[input_pos.index].callback();
+			map.layers[0].callbacks[input_pos.index].callback(map, x, y);
 	}
 	scene.input.keyboard.resetKeys();
 	scene.input.keyboard.enabled = false;
