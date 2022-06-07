@@ -1,3 +1,5 @@
+import { Generate } from "./map_gen.js";
+
 const kTileSize = 16;
 const kMinTilesVisible = 10;
 const kMaxTilesVisible = 16;
@@ -52,13 +54,16 @@ function preload() {
 	this.load.image("tiles", "assets/img/tiles.png");
 	if (level_gen === false)
 		this.load.tilemapCSV("lvl" + level, "assets/map/level" + level + ".csv");
-	else
-		this.load.tilemapCSV("lvl" + level, "assets/map/level2.csv");
 	this.load.spritesheet('p', 'assets/img/player.png', { frameWidth: 16, frameHeight: 16 });
 }
 function create() {
 	// Tilemap code dump. For now™.
-	map = this.make.tilemap({ key: "lvl" + level, tileWidth: kTileSize, tileHeight: kTileSize });
+	if (level_gen === false)
+		map = this.make.tilemap({ key: "lvl" + level, tileWidth: kTileSize, tileHeight: kTileSize });
+	else {
+		let data = Generate(Phaser.Math.Between(16, 40), Phaser.Math.Between(11, 25));
+		map = this.make.tilemap({ data, tileWidth: kTileSize, tileHeight: kTileSize});
+	}
 	var tileset = map.addTilesetImage('tiles');
     var layer = map.createLayer(0, tileset, 0, 0);
 	map.setCollisionBetween(4,11);
