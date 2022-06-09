@@ -1,24 +1,18 @@
 import { Generate } from "./map_gen.js";
-
-const kTileSize = 16;
-const kMinTilesVisible = 10;
-const kMaxTilesVisible = 16;
-
-let zoomLevel = Math.floor(Math.min(window.innerWidth, window.innerHeight) / kTileSize / (kMinTilesVisible + 1));
-let height = Math.min(kMaxTilesVisible, Math.floor(window.innerHeight / kTileSize / zoomLevel) - 1);
-let width = Math.min(kMaxTilesVisible, Math.floor(window.innerWidth / kTileSize / zoomLevel) - 1);
+import { CalcZoom, CalcHeight, CalcWidth, CameraInit } from "./camera.js";
+import { kTileSize } from "./constants.js";
 
 const config = {
 	audio: {
 		noAudio: true
 	},
 	type: Phaser.AUTO,
-	width: width * kTileSize,
-	height: height * kTileSize,
+	width: CalcWidth(),
+	height: CalcHeight(),
 	pixelArt: true,
 	scale: {
 		autoCenter: Phaser.Scale.CENTER_BOTH,
-		zoom: zoomLevel
+		zoom: CalcZoom()
 	},
 	scene: {
 		init: init,
@@ -28,6 +22,7 @@ const config = {
 	}
 };
 const gadd = new Phaser.Game(config);
+
 var level;
 var level_gen;
 var map;
@@ -77,8 +72,7 @@ function create() {
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
 
 	// Camera code dump. For now™.
-	this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-	this.cameras.main.startFollow(player, true);
+	CameraInit(this, map, player);
 
 	// Controls.
 	this.input.keyboard.enabled = true;
