@@ -1,6 +1,5 @@
-import { Generate } from "./map_gen.js";
 import { CalcZoom, CalcHeight, CalcWidth, CameraInit } from "./camera.js";
-import { kTileSize } from "./constants.js";
+import Map from "./map.js";
 
 const config = {
 	audio: {
@@ -24,60 +23,42 @@ const config = {
 const gadd = new Phaser.Game(config);
 
 var level;
-var level_gen;
-var map;
 var player;
 var input_;
 var input_pos;
+var map;
+
 
 function init(data) {
-	if (data.level === undefined)
-		level = 1;
-	else
-		level = data.level + 1;
+	if (data.lvl === undefined)
+		level = "lvl1";
+	else {
+		// \D is any not-number. /.../g is replacing all of them. Add one.
+		let tmp = parseInt(data.lvl.replace(/\D/g, "")) + 1;
+		// \d is any number. Replacing all of them with new number.
+		level = data.lvl.replace(/\d/g, tmp);
+	}
 
-	// Check if next level exists to determine whether it needs to be generated.
-	let next_level = new XMLHttpRequest();
-	next_level.open("Head", "assets/map/level" + level + ".csv", false);
-	next_level.send();
-	if (next_level.status >= 400)
-		level_gen = true;
-	else
-		level_gen = false;
+	map = new Map(this);
 }
 function preload() {
-	this.load.image("tiles", "assets/img/tiles.png");
-	if (level_gen === false)
-		this.load.tilemapCSV("lvl" + level, "assets/map/level" + level + ".csv");
+	map.LoadLevel(level);
 	this.load.spritesheet('p', 'assets/img/player.png', { frameWidth: 16, frameHeight: 16 });
 }
 function create() {
 	// Tilemap code dump. For now™.
-	if (level_gen === false)
-		map = this.make.tilemap({ key: "lvl" + level, tileWidth: kTileSize, tileHeight: kTileSize });
-	else {
-		let data = Generate(Phaser.Math.Between(16, 40), Phaser.Math.Between(11, 25));
-		map = this.make.tilemap({ data, tileWidth: kTileSize, tileHeight: kTileSize});
-	}
-	var tileset = map.addTilesetImage('tiles');
-    var layer = map.createLayer(0, tileset, 0, 0);
-	map.setCollisionBetween(4,11);
-    layer.skipCull = true;
-	layer.setTileIndexCallback(13, () => { this.registry.destroy(); this.events.off();﻿ this.scene.restart({level: level}); }, this);
-	layer.setTileIndexCallback(14, (map, x, y) => { map.putTileAt(15, x, y); if (map.getTileAt(x, y - 1).index == 8) map.putTileAt(4, x, y - 1); }, this);
-	layer.setTileIndexCallback(16, (map, x, y) => { map.putTileAt(17, x, y); }, this);
-	layer.setTileIndexCallback(18, (map, x, y) => { map.putTileAt(19, x, y); }, this);
+	map.NewLevel(level);
 
 	// Player sprite code dump. For now™.
 	player = this.add.sprite(0, 0, "p", 0).setOrigin(0,0);
 
 	// Camera code dump. For now™.
-	CameraInit(this, map, player);
+	CameraInit(this, map.Map(), player);
 
 	// Controls.
 	this.input.keyboard.enabled = true;
 	input_ = this.input.keyboard.createCursorKeys();
-	input_pos = map.getTileAt(1, 1);
+	input_pos = map.Get(1, 1);
 	player.setPosition(input_pos.getLeft(), input_pos.getTop());
 }
 function update() {
@@ -94,7 +75,7 @@ function update() {
 
 function MoveTo(scene, x, y) {
 	let success = false;
-	let dest = map.getTileAt(x, y);
+	let dest = map.Get(x, y);
 	let delay = 100;
 
 	if (dest === null) {
@@ -103,11 +84,11 @@ function MoveTo(scene, x, y) {
 		delay = 25;
 	} else {
 		success = true;
-		input_pos = map.getTileAt(x, y);
+		input_pos = map.Get(x, y);
 		player.setPosition(input_pos.getLeft(), input_pos.getTop());
 
-		if (map.layers[0].callbacks[input_pos.index] != undefined)
-			map.layers[0].callbacks[input_pos.index].callback(map, x, y);
+		if (map.Map().layer.callbacks[input_pos.index] != undefined)
+			map.Map().layer.callbacks[input_pos.index].callback(x, y);
 	}
 	scene.input.keyboard.resetKeys();
 	scene.input.keyboard.enabled = false;
