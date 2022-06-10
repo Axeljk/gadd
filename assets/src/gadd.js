@@ -35,8 +35,8 @@ function init(data) {
 	else {
 		// \D is any not-number. /.../g is replacing all of them. Add one.
 		let tmp = parseInt(data.lvl.replace(/\D/g, "")) + 1;
-		// \d is any number. Replacing all of them with new number.
-		level = data.lvl.replace(/\d/g, tmp);
+		// \d is any number. Replacing all(+) of them with new number.
+		level = data.lvl.replace(/\d+/, tmp);
 	}
 
 	map = new Map(this);
